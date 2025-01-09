@@ -61,7 +61,16 @@ export default function Home() {
                 className="w-184 h-184 rounded-full"
               />
               <p className="text-3xl font-semibold text-gray-700">{steamUser.personaname}</p>
-              <p className="text-lg font-semibold text-gray-700">{formatStatus(steamUser)}</p>
+              <p
+                className={`text-lg font-semibold ${
+                  formatStatus(steamUser) === "Offline" ? "text-red-500" :
+                  formatStatus(steamUser) === "Online" ? "text-green-500" :
+                  formatStatus(steamUser) === "Away" ? "text-yellow-500" :
+                      "text-gray-700"
+                  }`}
+              >
+                {formatStatus(steamUser)}
+              </p>
               <div className="text-lg font-semibold text-gray-700">Last login:
                 <p>{formatUnixTime(steamUser.lastlogoff)}</p>
               </div>
@@ -73,7 +82,7 @@ export default function Home() {
           ))}
         </div>
       ) : (
-        <div className="text-gray-600 text-lg">Loading...</div>
+        <div className="text-white text-lg">Loading...</div>
       )}
     </div>
   );
