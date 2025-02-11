@@ -1,14 +1,8 @@
 
 export async function GET() {
 
-  const API_KEY = process.env.API_KEY;
-  // const STEAM_ID = '76561198062732953';
-  const STEAM_ID = '76561197962304647';
-  
-  // const STEAM_ID = '76561198129243213';
-
   try {
-    const response = await fetch(`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${API_KEY}&steamids=${STEAM_ID}`);
+    const response = await fetch('https://api.steampowered.com/ISteamApps/GetAppList/v2/');
 
     if (!response.ok) {
       throw new Error(`Steam API error: ${response.statusText}`);

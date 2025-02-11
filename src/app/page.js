@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   const [userData, setUserData] = useState(null);
+  const [appData, setAppData] = useState(null);
   const [error, setError] = useState(null);
 
   // Fetch user steam data from api route
@@ -25,20 +26,45 @@ export default function Home() {
     fetchUserData();
   }, []);
 
+  // Fetch steam app list
+  useEffect(() => {
+    async function fetchAppList() {
+      try {
+        const response = await fetch('/api/appList');
+        if (!response.ok) {
+          throw new Error("Failed to fetch app list");
+        }
+
+        const data = await response.json();
+        setAppData(data);
+      } catch (err) {
+        setError(err.message);
+      }
+    }
+
+    fetchAppList();
+  }, []);
+
   // format unix time to locale time
   const formatUnixTime = (unixTime) => {
     const date = new Date(unixTime * 1000);
     return date.toLocaleString();
   };
 
-  // formate the users status
+  // parse game title from game id
+  const formatGameTitle = (gameId) => {
+    if (!appData || !appData.applist || !appData.applist.apps) return "Unknown Game";
+    const app = appData.applist.apps.find(app => app.appid === parseInt(gameId));
+    return app ? app.name : "Unknown Game";
+  };
+
+  // format the users status
   const formatStatus = (steamUser) => {
     const statusMap = {
       0: "Offline",
       1: "Online",
-      2: "Busy",
-      3: "Away",
-      4: "Snooze",
+      2: "Away",
+      3: "Snooze",
     };
 
     return statusMap[steamUser.personastate];
@@ -62,10 +88,9 @@ export default function Home() {
               />
               <p className="text-3xl font-semibold text-gray-700">{steamUser.personaname}</p>
               <p
-                className={`text-lg font-semibold ${
-                  formatStatus(steamUser) === "Offline" ? "text-red-500" :
+                className={`text-lg font-semibold ${formatStatus(steamUser) === "Offline" ? "text-red-500" :
                   formatStatus(steamUser) === "Online" ? "text-green-500" :
-                  formatStatus(steamUser) === "Away" ? "text-yellow-500" :
+                    formatStatus(steamUser) === "Away" ? "text-yellow-500" :
                       "text-gray-700"
                   }`}
               >
@@ -77,7 +102,9 @@ export default function Home() {
               <div className="text-lg font-semibold text-gray-700">Account created:
                 <p>{formatUnixTime(steamUser.timecreated)}</p>
               </div>
-              <p className="text-lg font-semibold text-gray-700">Current game: {steamUser.gameid}</p>
+              <div className="text-lg font-semibold text-gray-700">Current game:
+                <p>{formatGameTitle(steamUser.gameid)}</p>
+              </div>
             </div>
           ))}
         </div>
